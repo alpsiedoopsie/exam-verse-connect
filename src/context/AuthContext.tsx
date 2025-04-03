@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../integrations/supabase/client";
+import { Database } from "../integrations/supabase/types";
 
 // User roles
 export type UserRole = "user" | "assessor" | "admin";
@@ -111,6 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, 0);
         } else {
           setCurrentUser(null);
+          setIsLoading(false);
         }
       }
     );
@@ -191,6 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Provide the auth context
   return (
     <AuthContext.Provider value={{ currentUser, session, login, signup, logout, isLoading }}>
       {children}
