@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -84,6 +83,28 @@ const LoginForm: React.FC = () => {
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Development-only method to add test users
+  const addTestUsers = async () => {
+    try {
+      // Add admin user
+      await signup('admin@test.com', 'Password123!', 'Test Admin');
+      
+      // Add assessor user
+      await signup('assessor@test.com', 'Password123!', 'Test Assessor');
+      
+      toast({
+        title: "Test Users Created",
+        description: "Admin and Assessor test accounts have been added",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error Creating Test Users",
+        description: error.message || "Failed to create test users",
+        variant: "destructive",
+      });
     }
   };
 
@@ -203,6 +224,19 @@ const LoginForm: React.FC = () => {
           </div>
         </CardFooter>
       </Tabs>
+      
+      {/* Only show in development environment */}
+      {import.meta.env.DEV && (
+        <CardFooter className="flex justify-center border-t p-4">
+          <Button 
+            variant="outline" 
+            onClick={addTestUsers}
+            className="mt-4"
+          >
+            Create Test Users
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };
