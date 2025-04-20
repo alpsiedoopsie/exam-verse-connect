@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -7,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "../integrations/supabase/client";
 
 const LoginForm: React.FC = () => {
   // Login state
@@ -89,15 +91,54 @@ const LoginForm: React.FC = () => {
   // Development-only method to add test users
   const addTestUsers = async () => {
     try {
-      // Add admin user
-      await signup('admin@test.com', 'Password123!', 'Test Admin');
+      setIsSubmitting(true);
       
-      // Add assessor user
-      await signup('assessor@test.com', 'Password123!', 'Test Assessor');
+      // Create admin user
+      const { data: adminData, error: adminError } = await supabase.auth.signUp({
+        email: 'admin@test.com',
+        password: 'Password123!',
+        options: {
+          data: {
+            full_name: 'Test Admin'
+          }
+        }
+      });
+      
+      if (adminError) throw adminError;
+      
+      // Create assessor user
+      const { data: assessorData, error: assessorError } = await supabase.auth.signUp({
+        email: 'assessor@test.com',
+        password: 'Password123!',
+        options: {
+          data: {
+            full_name: 'Test Assessor'
+          }
+        }
+      });
+      
+      if (assessorError) throw assessorError;
+      
+      // Set roles for the users
+      if (adminData.user) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: adminData.user.id, role: 'admin' });
+          
+        if (roleError) throw roleError;
+      }
+      
+      if (assessorData.user) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: assessorData.user.id, role: 'assessor' });
+          
+        if (roleError) throw roleError;
+      }
       
       toast({
         title: "Test Users Created",
-        description: "Admin and Assessor test accounts have been added",
+        description: "Admin and Assessor test accounts have been added. You can now log in with admin@test.com or assessor@test.com (Password123!)",
       });
     } catch (error: any) {
       toast({
@@ -105,6 +146,8 @@ const LoginForm: React.FC = () => {
         description: error.message || "Failed to create test users",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

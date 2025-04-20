@@ -21,6 +21,13 @@ const LoginPage: React.FC = () => {
               Welcome to ExamVerse Connect
             </h1>
             <p className="text-exam-muted">Sign in to your account</p>
+            {import.meta.env.DEV && (
+              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                <p className="text-sm text-amber-800">
+                  Development mode: Use the "Create Test Users" button below to create admin and assessor accounts.
+                </p>
+              </div>
+            )}
           </div>
           <LoginForm />
         </div>
