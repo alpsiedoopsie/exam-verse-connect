@@ -4,9 +4,20 @@ import { useAuth } from "../context/AuthContext";
 import AdminDashboard from "../components/dashboards/AdminDashboard";
 import UserDashboard from "../components/dashboards/UserDashboard";
 import AssessorDashboard from "../components/dashboards/AssessorDashboard";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const DashboardPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+  }, [currentUser, navigate]);
 
   // Render different dashboard based on user role
   const renderDashboard = () => {

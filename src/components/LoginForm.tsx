@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -36,6 +35,13 @@ const LoginForm: React.FC = () => {
 
     try {
       await login(email, password);
+      
+      // Check user roles right after login
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+
       toast({
         title: "Login successful",
         description: "Welcome to ExamVerse Connect!",
@@ -88,7 +94,6 @@ const LoginForm: React.FC = () => {
     }
   };
 
-  // Development-only method to add test users
   const addTestUsers = async () => {
     try {
       setIsSubmitting(true);
@@ -138,7 +143,7 @@ const LoginForm: React.FC = () => {
       
       toast({
         title: "Test Users Created",
-        description: "Admin and Assessor test accounts have been added. You can now log in with admin@test.com or assessor@test.com (Password123!)",
+        description: "Admin (admin@test.com) and Assessor (assessor@test.com) test accounts have been added. Use Password123! to login.",
       });
     } catch (error: any) {
       toast({
